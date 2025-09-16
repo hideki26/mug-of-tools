@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generador de Datos de Prueba</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      font-size: 0.95rem;
+    }
+    th, td {
+      border: 1px solid var(--color-border-light);
+      padding: 0.5rem;
+      text-align: left;
+      vertical-align: middle;
+    }
+    th {
+      background: var(--color-drop-hover);
+    }
+    .copy-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+      margin-left: 0.4rem;
+      color: var(--color-primary);
+      transition: color 0.2s ease;
+    }
+    .copy-btn:hover {
+      color: var(--color-accent);
+    }
+    .row-actions {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <iframe src="header.html" style="width:100%; border:none;"></iframe>
+
+  <h2>Generador de Datos de Prueba</h2>
+
+  <div class="container">
+    <label for="count">Cantidad de entradas a generar:</label>
+    <input type="number" id="count" value="1" min="1" max="1000">
+    <div class="button-group">
+      <button id="generateBtn">Generar</button>
+      <button id="copyAllBtn" class="copy-btn">Copiar todo</button>
+      <button id="csvBtn">Exportar CSV</button>
+      <button id="jsonBtn">Exportar JSON</button>
+    </div>
+
+    <div class="output-container">
+      <h2>Resultados</h2>
+      <div id="results"></div>
+    </div>
+  </div>
+
+  <script>
+    const firstNames = ["Ana","Luis","Carlos","María","Laura","José","Lucía","Pedro","Elena","Miguel","Sofía","David","Isabel","Raúl","Clara","Javier","Rosa","Andrés","Marta","Diego","Alba","Carmen","Ignacio","Hugo","Valeria"];
+    const lastNames = ["García","Pérez","Rodríguez","López","Martínez","Sánchez","Ramírez","Torres","Flores","Hernández","Muñoz","Díaz","Vargas","Castro","Moreno","Suárez","Rubio","Ortega","Reyes","Jiménez","Domínguez","Campos","Vega"];
+    const streets = ["Calle Mayor","Avenida del Sol","Paseo de la Paz","Camino Real","Plaza Central","Calle Luna","Avenida Libertad","Calle Olivo","Paseo del Río","Calle del Prado","Callejón Verde","Avenida de la Estación","Ronda Norte","Callejón Azul","Carretera Vieja"];
+    const domains = ["example.com","mail.com","test.org","demo.net","fakemail.es","correo.com"];
+
+    const countInput = document.getElementById("count");
+    const generateBtn = document.getElementById("generateBtn");
+    const copyAllBtn = document.getElementById("copyAllBtn");
+    const csvBtn = document.getElementById("csvBtn");
+    const jsonBtn = document.getElementById("jsonBtn");
+    const resultsDiv = document.getElementById("results");
+
+    function randomItem(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+    function generatePhone() {
+      const prefix = Math.random() < 0.5 ? "6" : "7";
+      let number = prefix;
+      for (let i = 0; i < 8; i++) number += Math.floor(Math.random() * 10);
+        return number;
+    }
+
+    function generateData(count) {
+      const results = [];
+      for (let i = 0; i < count; i++) {
+        const firstName = randomItem(firstNames);
+        const lastName = randomItem(lastNames);
+        const fullName = `${firstName} ${lastName}`;
+        const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}${Math.floor(Math.random() * 100)}@${randomItem(domains)}`;
+        const address = `${randomItem(streets)} ${Math.floor(Math.random() * 200) + 1}, Ciudad Ficticia`;
+        const phone = generatePhone();
+        results.push({ nombre: fullName, email, direccion: address, telefono: phone });
+      }
+      return results;
+    }
+
+    function renderTable(data) {
+      let html = `<table>
+      <thead><tr>
+      <th>Nombre</th><th>Email</th><th>Dirección</th><th>Teléfono</th><th>Fila</th>
+      </tr></thead><tbody>`;
+      data.forEach((item, i) => {
+        html += `<tr>
+        <td>${item.nombre} <button class="copy-btn" data-type="nombre" data-index="${i}">📋</button></td>
+        <td>${item.email} <button class="copy-btn" data-type="email" data-index="${i}">📋</button></td>
+        <td>${item.direccion} <button  ="copy-btn" data-type="direccion" data-index="${i}">📋</button></td>
+        <td>${item.telefono} <button class="copy-btn" data-type="telefono" data-index="${i}">📋</button></td>
+        <td class="row-actions"><button class="copy-btn" data-type="row" data-index="${i}">📋 Copiar</button></td>
+        </tr>`;
+      });
+      html += "</tbody></table>";
+      resultsDiv.innerHTML = html;
+    }
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text);
+    }
+
+    // Eventos
+    generateBtn.addEventListener("click", () => {
+      const count = parseInt(countInput.value) || 1;
+      const data = generateData(count);
+      resultsDiv.dataset.json = JSON.stringify(data, null, 2);
+      renderTable(data);
+
+      document.querySelectorAll("#results .copy-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const type = btn.dataset.type;
+          const idx = btn.dataset.index;
+          const dataArr = JSON.parse(resultsDiv.dataset.json);
+          let text = "";
+          if (type === "row") text = `${dataArr[idx].nombre} | ${dataArr[idx].email} | ${dataArr[idx].direccion} | ${dataArr[idx].telefono}`;
+          else text = dataArr[idx][type];
+          copyToClipboard(text);
+
+          // feedback
+          const original = btn.textContent;
+          btn.textContent = "✅";
+          setTimeout(() => (btn.textContent = original), 1000);
+        });
+      });
+    });
+
+    copyAllBtn.addEventListener("click", () => {
+      if (!resultsDiv.dataset.json) return;
+      const data = JSON.parse(resultsDiv.dataset.json);
+      const text = data.map(d => `${d.nombre} | ${d.email} | ${d.direccion} | ${d.telefono}`).join("\n");
+      copyToClipboard(text);
+      copyAllBtn.textContent = "¡Copiado!";
+      setTimeout(() => (copyAllBtn.textContent = "Copiar todo"), 1200);
+    });
+
+    csvBtn.addEventListener("click", () => {
+      if (!resultsDiv.dataset.json) return;
+      const data = JSON.parse(resultsDiv.dataset.json);
+      const csv = ["Nombre,Email,Dirección,Teléfono"];
+      data.forEach(item => csv.push(`"${item.nombre}","${item.email}","${item.direccion}","${item.telefono}"`));
+      const blob = new Blob([csv.join("\n")], { type: "text/csv" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "datos.csv";
+      a.click();
+    });
+
+    jsonBtn.addEventListener("click", () => {
+      if (!resultsDiv.dataset.json) return;
+      const blob = new Blob([resultsDiv.dataset.json], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "datos.json";
+      a.click();
+    });
+
+    // Generar 1 entrada inicial
+    generateBtn.click();
+  </script>
+</body>
+</html>

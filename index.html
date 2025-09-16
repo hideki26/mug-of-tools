@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>LOCAL APPS</title>
+  <link rel="icon" type="image/png" href="/appicon.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <iframe src="header.html" style="width:100%; border:none;"></iframe>
+
+  <div id="apps" class="grid"></div>
+
+  <script>
+    // Lista de apps (añade aquí las nuevas)
+    const apps = [
+      { name: "PDF to IMG", file: "pdf-to-img.html", icon: "📑" },
+      { name: "Video to frames", file: "video-to-frames.html", icon: "🎥" },
+      { name: "Color converter", file: "color-converter.html", icon: "🎨" },
+      { name: "URL slug maker", file: "slug-generator.html", icon: "🔗" },
+      { name: "Text converter WIP", file: "text-converter.html", icon: "✍️" },
+      { name: "Word counter", file: "word-counter.html", icon: "💬" },
+      { name: "QR generator", file: "qr-generator.html", icon: "📱" },
+      { name: "Person generator", file: "person-generator.html", icon: "👨‍👩‍👧‍👦" },
+      { name: "MP3 sorter WIP", file: "mp3-sorter.html", icon: "🎵" },
+      { name: "Add new app via code", file: "add-new-app.html", icon: "➕" }
+      ];
+
+    const container = document.getElementById("apps");
+
+    apps.forEach(app => {
+      const cardLink = document.createElement("a");
+      cardLink.className = "card";
+      cardLink.href = app.file;
+      
+      const contentDiv = document.createElement("div");
+      contentDiv.className = "card-content";
+      contentDiv.innerHTML = `
+      <span class="icon">${app.icon}</span>
+      <span>${app.name}</span>
+      `;
+      
+      cardLink.appendChild(contentDiv);
+      container.appendChild(cardLink);
+    });
+  </script>
+</body>
+</html>

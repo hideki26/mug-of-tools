@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Extractor de Imágenes de PDF</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <iframe src="header.html" style="width:100%; border:none;"></iframe>
+  <h2>Extractor de Imágenes de PDF</h2>
+  <div id="drop-zone" class="drop-zone">Arrastra tu archivo PDF aquí o haz clic para seleccionarlo</div>
+  <input type="file" id="file-input" accept=".pdf" style="display:none;">
+  <div id="output"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const output = document.getElementById('output');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add("dragover");
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove("dragover");
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove("dragover");
+      handleFile(e.dataTransfer.files[0]);
+    });
+
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length > 0) {
+        handleFile(fileInput.files[0]);
+      }
+    });
+
+    async function handleFile(file) {
+      if (!file || !file.name.endsWith('.pdf')) return;
+
+      output.innerHTML = '<p>Procesando PDF...</p>';
+
+      const fileReader = new FileReader();
+      fileReader.onload = async function () {
+        const typedarray = new Uint8Array(this.result);
+
+        const pdf = await pdfjsLib.getDocument({ data: typedarray }).promise;
+
+        output.innerHTML = '';
+
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const viewport = page.getViewport({ scale: 2 });
+          const canvas = document.createElement('canvas');
+          const context = canvas.getContext('2d');
+          canvas.height = viewport.height;
+          canvas.width = viewport.width;
+
+          await page.render({ canvasContext: context, viewport }).promise;
+
+          canvas.toBlob(blob => {
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(blob);
+            output.appendChild(img);
+
+            const link = document.createElement('a');
+            link.href = img.src;
+            link.download = `pagina_${i}.png`;
+            link.textContent = `Descargar imagen página ${i}`;
+            output.appendChild(link);
+          });
+        }
+      };
+      fileReader.readAsArrayBuffer(file);
+    }
+  </script>
+</body>
+</html>

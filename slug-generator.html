@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generador de Slug (URLs)</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <iframe src="header.html" style="width:100%; border:none;"></iframe>
+  
+  <h2>Generador de Slug</h2>
+
+  <div class="container">
+    <div class="options">
+      <label for="prefix">Prefijo (opcional):</label>
+      <input type="text" id="prefix" placeholder="ej: blog">
+
+      <label for="suffix">Sufijo (opcional):</label>
+      <input type="text" id="suffix" placeholder="ej: articulo">
+    </div>
+
+    <label for="inputText">Texto a convertir:</label>
+    <textarea id="inputText" placeholder="Escribe o pega tu texto aquí..."></textarea>
+
+    <div class="button-group">
+      <button id="generateBtn">Generar Slug</button>
+      <button id="copyBtn" class="copy-btn">Copiar</button>
+    </div>
+
+    <h3>Resultado</h3>
+    <div class="output-container">
+      <input type="text" id="outputSlug" readonly placeholder="Aquí aparecerá el slug generado">
+    </div>
+  </div>
+
+  <script>
+    const inputText = document.getElementById("inputText");
+    const prefixInput = document.getElementById("prefix");
+    const suffixInput = document.getElementById("suffix");
+    const outputSlug = document.getElementById("outputSlug");
+    const generateBtn = document.getElementById("generateBtn");
+    const copyBtn = document.getElementById("copyBtn");
+
+    // Normalizar texto → slug
+    function slugify(text) {
+      return text
+        .toLowerCase()
+        .normalize("NFD") // separa acentos
+        .replace(/[\u0300-\u036f]/g, "") // quita acentos
+        .replace(/[^a-z0-9\s-]/g, "") // elimina símbolos no válidos
+        .trim()
+        .replace(/\s+/g, "-") // espacios → guiones
+        .replace(/-+/g, "-"); // guiones múltiples → uno
+    }
+
+    generateBtn.addEventListener("click", () => {
+      const raw = inputText.value;
+      const prefix = prefixInput.value.trim();
+      const suffix = suffixInput.value.trim();
+
+      let slug = slugify(raw);
+      if (prefix) slug = slugify(prefix) + "/" + slug;
+      if (suffix) slug = slug + "/" + slugify(suffix);
+
+      outputSlug.value = slug;
+    });
+
+    copyBtn.addEventListener("click", () => {
+      outputSlug.select();
+      document.execCommand("copy");
+      const original = copyBtn.textContent;
+      copyBtn.textContent = "¡Copiado!";
+      setTimeout(() => (copyBtn.textContent = original), 1200);
+    });
+  </script>
+</body>
+</html>

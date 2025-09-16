@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Extraer Frames y Descargar ZIP</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <iframe src="header.html" style="width:100%; border:none;"></iframe>
+
+  <h2>Extraer Frames de Video</h2>
+
+  <div id="dropZone" class="drop-zone">Suelta tu archivo de video aquí</div>
+
+  <label for="interval">Intervalo de frames (ej. 10): </label>
+  <input type="number" id="interval" value="10" min="1" />
+  <button id="start">Extraer Frames</button>
+  <button id="downloadBtn">Descargar ZIP</button>
+
+  <div class="preview-area">
+    <video id="video" controls style="max-width:100%; display:none;"></video>
+    <canvas id="canvas"></canvas>
+  </div>
+  
+  <div id="frames"></div>
+
+  <!-- JSZip desde CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+  <script>
+    const dropZone = document.getElementById('dropZone');
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const framesDiv = document.getElementById('frames');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    let videoFile = null;
+    let zip = new JSZip();
+
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add("dragover");
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove("dragover");
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove("dragover");
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('video')) {
+        videoFile = file;
+        const url = URL.createObjectURL(file);
+        video.src = url;
+        video.load();
+        video.style.display = 'block';
+      }
+    });
+
+    document.getElementById('start').addEventListener('click', async () => {
+      if (!videoFile) return alert("Primero carga un video.");
+      const interval = parseInt(document.getElementById('interval').value);
+      framesDiv.innerHTML = '';
+      zip = new JSZip();
+      downloadBtn.style.display = 'none';
+
+      video.pause();
+      await video.play();
+      video.pause();
+
+      const duration = video.duration;
+      const fps = 30;
+      const totalFrames = Math.floor(duration * fps);
+
+      for (let i = 0; i < totalFrames; i += interval) {
+        await captureFrame(i / fps, i);
+      }
+
+      downloadBtn.style.display = 'inline-block';
+    });
+
+    async function captureFrame(time, index) {
+      return new Promise(resolve => {
+        video.currentTime = time;
+        video.onseeked = async () => {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+          const img = new Image();
+          img.src = canvas.toDataURL('image/jpeg');
+          img.style.maxWidth = '100px';
+          framesDiv.appendChild(img);
+
+          canvas.toBlob(blob => {
+            zip.file(`frame_${index}.jpg`, blob);
+            resolve();
+          }, 'image/jpeg', 0.9);
+        };
+      });
+    }
+
+    downloadBtn.addEventListener('click', async () => {
+      const content = await zip.generateAsync({ type: 'blob' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(content);
+      a.download = 'frames.zip';
+      a.click();
+    });
+  </script>
+</body>
+</html>

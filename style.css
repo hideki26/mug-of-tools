@@ -1,0 +1,221 @@
+:root {
+  /* Colores */
+  --color-bg: #f4f6f9;
+  --color-text: #333;
+  --color-heading: #222;
+  --color-primary: #4461e6;
+  --color-primary-dark: #2e46a2;
+  --color-border: #888;
+  --color-border-light: #ccc;
+  --color-card-bg: #fff;
+  --color-drop-hover: #eef3ff;
+
+  /* Tipografía */
+  --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+  /* Bordes y sombras */
+  --radius: 12px;
+  --shadow: 0 4px 10px rgba(0,0,0,0.08);
+  --shadow-hover: 0 6px 14px rgba(0,0,0,0.12);
+
+  /* Espaciado */
+  --padding: 2rem;
+}
+
+*{
+  box-sizing: border-box;
+}
+/* Estilo base */
+body {
+  font-family: var(--font-family);
+  background: var(--color-bg);
+  color: var(--color-text);
+  margin: 0;
+  padding: 0 var(--padding);
+}
+
+h1, h2 {
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  color: var(--color-heading);
+}
+
+h2{
+  text-align: left;
+  margin-top: 0;
+}
+
+.header-container{
+  padding: .5rem 0;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+/* Drop zones */
+.drop-zone {
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  text-align: center;
+  background: var(--color-card-bg);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.drop-zone:hover, .drop-zone.dragover {
+  background: var(--color-drop-hover);
+  border-color: var(--color-primary);
+}
+
+/* Botones */
+button {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
+  margin: 0.5rem 0;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.3s ease;
+}
+button:hover {
+  background: var(--color-primary-dark);
+}
+
+/* Inputs */
+input[type="file"], input[type="number"] {
+  padding: 0.4rem;
+  border: 1px solid var(--color-border-light);
+  border-radius: 6px;
+  margin: 0.5rem 0;
+}
+
+/* Resultados */
+#output img, #frames img {
+  max-width: 100%;
+  margin: 10px 0;
+  border-radius: 6px;
+  box-shadow: var(--shadow);
+}
+#frames {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Links */
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: bold;
+}
+
+/* Grid de apps en el index */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1.2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* Tarjetas */
+.card {
+  background: var(--color-card-bg);
+  border-radius: var(--radius);
+  padding: 1rem;
+  text-align: center;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+}
+.card:hover .icon{ 
+  text-decoration: none!important;
+}
+
+/* Icono dentro de las cards */
+.card .icon {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+/* Link de la card */
+.card a {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
+  text-decoration: none;
+  margin-top: 0.2rem;
+}
+.card a:hover {
+  color: var(--color-primary);
+}
+
+/* Textareas */
+textarea{
+  min-height: 200px;
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  text-align: left;
+  background: var(--color-card-bg);
+}
+
+.copy-btn{
+  margin-bottom: 0;
+}
+
+/* VIDEO TO FRAMES */
+#canvas{
+  max-width: 100%;
+}
+
+.preview-area{
+  margin-top: 28px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+.preview-area >*{
+  width: 40%;
+  padding: 10px;
+  margin: 10px 0 20px 0;
+  border-radius: 6px;
+  box-shadow: var(--shadow);
+}
+/*COLOR CONVERTER*/
+.output-container{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 2rem;
+}
+.button-group > div{
+  margin-bottom: 20px;
+}
+#colorPreview{
+    width: 250px;
+    aspect-ratio: 1/1;
+    border-radius: 8px;
+    border: 1px solid rgb(204, 204, 204);
+  }
+
+/*SLUG GENERATOR*/
+#outputSlug{
+  width: 100%;
+  padding: var(--padding);
+}
